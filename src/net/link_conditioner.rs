@@ -6,7 +6,10 @@
 use std::time::Duration;
 
 use rand::Rng;
+#[cfg(not(target_os = "emscripten"))]
 use rand_pcg::Pcg64Mcg as Random;
+#[cfg(target_os = "emscripten")]
+use rand_pcg::Pcg32 as Random;
 
 /// Network simulator. Used to simulate network conditions as dropped packets and packet delays.
 /// For use in [FakeSocket::set_link_conditioner](crate::test_utils::FakeSocket::set_link_conditioner).
@@ -27,7 +30,10 @@ impl LinkConditioner {
         LinkConditioner {
             packet_loss: 0.0,
             latency: Duration::default(),
+            #[cfg(not(target_os = "emscripten"))]
             random: Random::new(0),
+            #[cfg(target_os = "emscripten")]
+            random: Random::new(0xcafef00dd15ea5e5, 0xa02bdbf7bb3c0a7),
         }
     }
 
